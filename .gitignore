@@ -1,2 +1,8 @@
-/venv
-data/*
+data/raw/*
+data/bronze/
+data/silver/
+.env
+__pycache__/
+*.pyc
+.venv/
+*.egg-info/
