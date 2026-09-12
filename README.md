@@ -10,6 +10,8 @@ Given a query like `"battery drains too fast"`, the search layer returns the mos
 
 ## 🏗️ Solution Architecture
 
+![Architecture Diagram](img/architecture.png)
+
 ```
 Amazon Reviews (JSONL)
         │
@@ -108,6 +110,24 @@ python -m src.search.semantic_search "great gift for a teenager" --min-rating 4
 ```bash
 pytest tests/
 ```
+
+## 🧪 Search in Action
+
+### Semantically relevant results, not just keyword matches
+
+Query: `"gentle on sensitive skin"` — every result is genuinely about gentle/sensitive-skin products, ranked by similarity, even though none of them repeat the query's exact wording:
+
+![Search example — sensitive skin query](img/search-sensitive-skin.png)
+
+### Finding and fixing a real recall bug
+
+Filtering by `--min-rating 3` on `"doesn't work as well as expected"` first returned **zero results** — not because no qualifying reviews existed, but because pgvector's IVFFlat index only scans 1 of its 100 clusters per query by default (`probes=1`). On a small table, that's a narrow enough window that a rating filter can legitimately come up empty. Raising `ivfflat.probes` to 10 fixed it — the same query then returned five relevant, correctly-filtered results:
+
+![Search example — IVFFlat recall bug found and fixed](img/search-recall-tuning-fix.png)
+
+### A known limitation worth naming
+
+Sentence embeddings capture *topic* far better than *sentiment*. Querying `"smells too strong"` surfaces reviews about scent intensity generally — including a couple of positive reviews saying a product is *not* overpowering. The model correctly identifies these as topically similar; it just can't reliably tell "too strong" apart from "not too strong" on its own. Hybrid keyword + semantic search (listed below) is the real fix for this, not a bigger model.
 
 ## 📈 Future Enhancements
 
