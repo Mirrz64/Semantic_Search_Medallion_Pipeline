@@ -61,3 +61,4 @@ POSTGRES = PostgresConfig()
 
 GOLD_TABLE = os.getenv("GOLD_TABLE", "review_embeddings")
 BATCH_SIZE = int(os.getenv("EMBEDDING_BATCH_SIZE", "256"))
+IVFFLAT_PROBES = int(os.getenv("IVFFLAT_PROBES", "10"))

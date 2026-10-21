@@ -15,8 +15,6 @@ its raw shape (schema enforced so downstream stages don't fight
 inferred types, obviously corrupt rows dropped) and partitions by
 ingestion date so re-runs don't clobber history.
 
-Run:
-    spark-submit src/bronze/ingestion.py
 """
 
 import sys
@@ -76,6 +74,7 @@ def ingest_raw_reviews(spark: SparkSession, raw_path: str) -> "pyspark.sql.DataF
         .option("mode", "PERMISSIVE")
         .option("columnNameOfCorruptRecord", "_corrupt_record")
         .json(raw_path)
+        .cache()
     )
 
     corrupt_count = df.filter(F.col("_corrupt_record").isNotNull()).count()

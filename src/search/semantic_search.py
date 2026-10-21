@@ -19,7 +19,7 @@ import psycopg2
 from sentence_transformers import SentenceTransformer
 
 sys.path.append(str(Path(__file__).resolve().parents[2]))
-from src.common.config import EMBEDDING_MODEL_NAME, GOLD_TABLE, POSTGRES  # noqa: E402
+from src.common.config import EMBEDDING_MODEL_NAME, GOLD_TABLE, IVFFLAT_PROBES, POSTGRES  # noqa: E402
 
 SEARCH_SQL = f"""
 SELECT
@@ -43,6 +43,7 @@ def run_search(query: str, top_k: int = 5, min_rating: float | None = None) -> l
     conn = psycopg2.connect(POSTGRES.as_dsn())
     try:
         with conn.cursor() as cur:
+            cur.execute(f"SET ivfflat.probes = {IVFFLAT_PROBES};")
             cur.execute(
                 SEARCH_SQL,
                 {
